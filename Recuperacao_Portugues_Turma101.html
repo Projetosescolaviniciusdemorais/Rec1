@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recuperação de Português — Turma 101</title>
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --paper: #ffffff;
+    --ink: #2b2620;
+    --ink-soft: #5c554a;
+    --accent: #8a3324;
+    --accent-soft: #c45c3f;
+    --good: #2f6b4f;
+    --good-bg: #e6f0e9;
+    --bad: #9c2b21;
+    --bad-bg: #f5e3e0;
+    --line: #e1d9cc;
+    --gold: #b08d3e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(138,51,36,0.04), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(176,141,62,0.05), transparent 40%);
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 18px 80px;
+  }
+
+  header.app-header {
+    text-align: center;
+    padding: 18px 0 22px;
+    border-bottom: 3px double var(--gold);
+    margin-bottom: 24px;
+  }
+
+  header.app-header .escola {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  header.app-header h1 {
+    font-size: 1.5rem;
+    margin: 4px 0 6px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  header.app-header .sub {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* HOME */
+  .home-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  .home-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.05rem;
+    color: var(--accent);
+  }
+
+  .home-card p {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 6px;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0 6px;
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    flex: 1;
+    min-width: 90px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .stat-box .num {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-box .label {
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .mode-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .mode-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mode-btn:hover, .mode-btn:active {
+    border-color: var(--accent-soft);
+    background: #fdf9f5;
+  }
+
+  .mode-btn .title {
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 0.98rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .mode-btn .desc {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+
+  .badge {
+    font-size: 0.68rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+
+  .reset-link {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .reset-link button {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* QUIZ SCREEN */
+  .progress-bar-outer {
+    height: 6px;
+    background: var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-soft), var(--accent));
+    transition: width 0.3s ease;
+  }
+
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+
+  .quiz-meta .tema-tag {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-style: italic;
+  }
+
+  .question-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 22px 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    margin-bottom: 16px;
+  }
+
+  .question-card .qnum {
+    font-size: 0.78rem;
+    color: var(--gold);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .question-card .enunciado {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink);
+    white-space: pre-line;
+    margin-bottom: 18px;
+  }
+
+  .alt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .alt-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    border: 1.5px solid var(--line);
+    border-radius: 9px;
+    padding: 11px 13px;
+    cursor: pointer;
+    font-size: 0.93rem;
+    line-height: 1.45;
+    transition: all 0.15s ease;
+    background: var(--paper);
+  }
+
+  .alt-option:hover {
+    border-color: var(--accent-soft);
+    background: #fdf9f5;
+  }
+
+  .alt-option .letter {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .alt-option.disabled {
+    cursor: default;
+  }
+
+  .alt-option.correct {
+    background: var(--good-bg);
+    border-color: var(--good);
+  }
+  .alt-option.correct .letter {
+    background: var(--good);
+    border-color: var(--good);
+    color: #fff;
+  }
+
+  .alt-option.incorrect {
+    background: var(--bad-bg);
+    border-color: var(--bad);
+  }
+  .alt-option.incorrect .letter {
+    background: var(--bad);
+    border-color: var(--bad);
+    color: #fff;
+  }
+
+  .alt-option.muted {
+    opacity: 0.55;
+  }
+
+  .explicacao-box {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    display: none;
+  }
+
+  .explicacao-box.show {
+    display: block;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .explicacao-box.right {
+    background: var(--good-bg);
+    border-left: 4px solid var(--good);
+    color: #1f4a37;
+  }
+
+  .explicacao-box.wrong {
+    background: var(--bad-bg);
+    border-left: 4px solid var(--bad);
+    color: #6e1f17;
+  }
+
+  .explicacao-box .head {
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 0.88rem;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .btn {
+    font-family: inherit;
+    border: none;
+    border-radius: 9px;
+    padding: 13px 18px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    flex: 1;
+  }
+  .btn-primary:hover { background: #6e2818; }
+  .btn-primary:disabled {
+    background: #c9c2b6;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    background: none;
+    border: 1.5px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .btn-ghost:hover { border-color: var(--accent-soft); }
+
+  /* RESULT SCREEN */
+  .result-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 28px 22px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  }
+
+  .result-card .score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 6px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto 18px;
+  }
+
+  .result-card .score-circle .pct {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .result-card .score-circle .frac {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+  }
+
+  .result-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+
+  .result-card .msg {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+
+  .tema-breakdown {
+    text-align: left;
+    margin-top: 18px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+
+  .tema-breakdown h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .tema-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--bg);
+  }
+
+  .tema-row .tema-name {
+    color: var(--ink);
+    flex: 1;
+    padding-right: 10px;
+  }
+
+  .tema-row .tema-score {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .tema-row .tema-score.good { color: var(--good); }
+  .tema-row .tema-score.bad { color: var(--bad); }
+
+  .result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .print-btn {
+    display: none;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .app-header, .home-card, .reset-link, .nav-row, .quiz-meta, .progress-bar-outer { display: none !important; }
+    .question-card { box-shadow: none; border: 1px solid #999; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="app-header">
+    <div class="escola">Escola Vinícius de Morais</div>
+    <h1>Recuperação de Português</h1>
+    <div class="sub">Turma 101 · Banco de questões para estudo</div>
+  </header>
+
+  <!-- HOME SCREEN -->
+  <section class="screen active" id="screen-home">
+    <div class="home-card">
+      <h2>Como você quer estudar?</h2>
+      <p>Este banco reúne 50 questões sobre os temas da recuperação: variação linguística, preconceito linguístico, morfologia (formação de palavras, classes gramaticais) e sintaxe (sujeito, predicado, objeto, adjuntos).</p>
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="num">50</div>
+          <div class="label">Questões</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="stat-acertos">0</div>
+          <div class="label">Acertos</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="stat-feitas">0</div>
+          <div class="label">Já feitas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-grid">
+      <button class="mode-btn" onclick="startQuiz('todas')">
+        <div class="title">Simulado completo <span class="badge">50 questões</span></div>
+        <div class="desc">Todas as questões embaralhadas, com explicação após cada resposta.</div>
+      </button>
+      <button class="mode-btn" onclick="startQuiz('rapido')">
+        <div class="title">Treino rápido <span class="badge">15 questões</span></div>
+        <div class="desc">Uma seleção aleatória menor, ideal para revisar em poucos minutos.</div>
+      </button>
+      <button class="mode-btn" onclick="startQuiz('erros')">
+        <div class="title">Revisar erros <span class="badge" id="erros-count">0</span></div>
+        <div class="desc">Refaça apenas as questões que você errou nas tentativas anteriores.</div>
+      </button>
+    </div>
+
+    <div class="reset-link">
+      <button onclick="resetProgress()">Zerar meu progresso salvo</button>
+    </div>
+  </section>
+
+  <!-- QUIZ SCREEN -->
+  <section class="screen" id="screen-quiz">
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="quiz-meta">
+      <span id="meta-counter">Questão 1 de 50</span>
+      <span class="tema-tag" id="meta-tema">Tema</span>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <div class="qnum" id="qnum-label">QUESTÃO 1</div>
+      <div class="enunciado" id="enunciado-text"></div>
+      <div class="alt-list" id="alt-list"></div>
+      <div class="explicacao-box" id="explicacao-box">
+        <div class="head" id="explicacao-head"></div>
+        <div id="explicacao-text"></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goHome()">← Sair</button>
+      <button class="btn btn-primary" id="next-btn" disabled onclick="nextQuestion()">Responda para continuar</button>
+    </div>
+  </section>
+
+  <!-- RESULT SCREEN -->
+  <section class="screen" id="screen-result">
+    <div class="result-card">
+      <div class="score-circle">
+        <div class="pct" id="result-pct">0%</div>
+        <div class="frac" id="result-frac">0/0</div>
+      </div>
+      <h2 id="result-title">Resultado</h2>
+      <div class="msg" id="result-msg"></div>
+
+      <div class="tema-breakdown">
+        <h3>Desempenho por tema</h3>
+        <div id="tema-list"></div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-ghost" onclick="goHome()">Início</button>
+        <button class="btn btn-primary" onclick="restartSame()">Refazer</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+const QUESTOES = [{"tema": "Sociolinguística / Variação linguística", "enunciado": "\"Lá no interior, todo mundo fala 'nós pega', 'mió' em vez de 'melhor'... mas não é que eles não sabem falar, é que falam diferente.\" (Fala de um morador de zona rural em entrevista a um projeto escolar)\n\nA fala registrada relaciona a forma de expressão dos moradores da zona rural a um fenômeno linguístico amplamente estudado pela Sociolinguística. Esse fenômeno é o(a):", "alternativas": {"A": "deficiência de aprendizagem, já que o uso fora da norma-padrão revela domínio insuficiente da língua materna.", "B": "variação linguística, que decorre de fatores sociais, regionais e culturais, sem implicar incapacidade comunicativa.", "C": "estrangeirismo, uma vez que essas construções têm origem em outras línguas que influenciaram o português rural.", "D": "gíria, restrita a grupos jovens urbanos que buscam marcar identidade por meio de vocabulário próprio.", "E": "regra ortográfica regional, aplicável apenas à escrita informal de textos digitados."}, "correta": "B", "explicacao": "A sociolinguística trata formas como \"nós pega\" e \"mió\" como manifestações de variação linguística — diferenças sistemáticas ligadas a região, classe social e cultura, e não como deficiência ou incapacidade de comunicação."}, {"tema": "Sociolinguística / Preconceito linguístico", "enunciado": "\"Fulano até que é inteligente, só não devia ter estudado em escola pública, porque o jeito que ele fala entrega.\" (Comentário ouvido em uma roda de conversa sobre um candidato a emprego)\n\nO comentário acima exemplifica um julgamento que a Sociolinguística classifica como preconceito linguístico porque:", "alternativas": {"A": "aponta corretamente uma limitação real de vocabulário causada pela falta de leitura na infância.", "B": "associa o modo de falar do candidato a uma suposta inferioridade pessoal, em vez de reconhecê-lo como traço de uma variedade linguística.", "C": "denuncia, de forma justa, o uso de gírias inadequadas para um ambiente profissional formal.", "D": "expõe uma falha gramatical objetiva que compromete a comunicação do candidato em qualquer contexto.", "E": "reflete uma análise neutra sobre a adequação da fala às normas do mercado de trabalho."}, "correta": "B", "explicacao": "O comentário liga a forma de falar do candidato a uma suposta inferioridade pessoal e de origem social — exatamente o mecanismo do preconceito linguístico, que estigmatiza o falante em vez de reconhecer sua fala como uma variedade legítima."}, {"tema": "Variação linguística / Diatópica", "enunciado": "\"Sou nordestino e, quando vim estudar no Sul, várias vezes me pediram para 'falar de novo' ou riram do meu jeito de falar, como se fosse uma piada.\" (Depoimento de estudante universitário)\n\nO constrangimento relatado pelo estudante está diretamente relacionado a qual aspecto da variação linguística no Brasil?", "alternativas": {"A": "À variação diatópica (regional), que produz diferenças de pronúncia e vocabulário entre as diversas regiões do país.", "B": "À variação diacrônica, que registra as mudanças que uma língua sofre ao longo dos séculos.", "C": "Ao bilinguismo, já que o nordestino e o sulista seriam falantes de línguas distintas.", "D": "À variação ortográfica, uma vez que cada região do Brasil adota regras de escrita próprias.", "E": "À ausência de norma-padrão nas regiões Norte e Nordeste do país."}, "correta": "A", "explicacao": "A diferença de pronúncia e vocabulário entre o falar nordestino e o sulista é um caso de variação diatópica — variação ligada ao espaço geográfico. Não se trata de línguas distintas (não é bilinguismo) nem de regras ortográficas regionais."}, {"tema": "Sociolinguística / Marcos Bagno", "enunciado": "\"Não é que a linguagem dos jovens da periferia seja 'errada': ela segue regras próprias, consistentes, que qualquer falante daquela comunidade reconhece e usa.\" (Marcos Bagno, adaptado)\n\nA afirmação do linguista Marcos Bagno sustenta-se, sobretudo, no argumento de que:", "alternativas": {"A": "toda variedade linguística, mesmo a não-padrão, possui uma gramática interna coerente, e não é um conjunto aleatório de \"erros\".", "B": "a norma-padrão deve ser abandonada no ensino escolar, por ser uma imposição sem utilidade social.", "C": "os jovens da periferia, por não dominarem a norma-padrão, desenvolveram uma língua totalmente nova e independente do português.", "D": "apenas comunidades urbanas marginalizadas produzem variedades linguísticas dignas de estudo científico.", "E": "a coerência interna de uma variedade linguística depende do reconhecimento oficial de gramáticos e dicionários."}, "correta": "A", "explicacao": "Bagno defende que toda variedade — inclusive as populares e periféricas — tem uma gramática interna coerente e sistemática, reconhecida e usada por seus falantes. Isso não significa abandonar o ensino da norma-padrão (B) nem que se trate de uma língua nova (C)."}, {"tema": "Variação linguística / Registro informal", "enunciado": "\"Catraca, esse aqui é osso! Tamo simbora, mas ainda dá tempo de comprar um trampo ali.\" (Fala registrada entre dois jovens em uma estação de metrô)\n\nDo ponto de vista do estudo da variação linguística, a fala dos dois jovens deve ser interpretada como:", "alternativas": {"A": "um uso inadequado da língua portuguesa, que prejudica a compreensão entre falantes de regiões diferentes.", "B": "uma manifestação legítima de variação linguística vinculada a um grupo social e a um contexto informal de comunicação, plenamente eficaz entre os interlocutores.", "C": "um exemplo de língua estrangeira incorporada à fala brasileira sem qualquer adaptação gramatical.", "D": "uma demonstração de que os falantes desconhecem por completo a norma-padrão da língua portuguesa.", "E": "um erro de concordância que compromete a clareza da mensagem para qualquer ouvinte."}, "correta": "B", "explicacao": "O uso de gírias entre jovens em contexto informal é eficaz para a comunicação entre eles, representando uma variação linguística legítima ligada a grupo social e situação — não um \"erro\" nem prova de desconhecimento da norma-padrão."}, {"tema": "Sociolinguística / Adequação linguística", "enunciado": "\"Em uma entrevista de emprego, o candidato disse 'nós fizemos' em vez de 'nós fez', que usa no dia a dia com a família.\" (Situação hipotética discutida em sala de aula)\n\nA atitude do candidato de adequar sua fala ao contexto da entrevista demonstra, principalmente, a capacidade de:", "alternativas": {"A": "esconder sua verdadeira identidade linguística para parecer mais escolarizado do que realmente é.", "B": "reconhecer que a variedade usada em casa é \"errada\" e deve ser definitivamente abandonada.", "C": "adaptar o registro linguístico conforme a situação comunicativa, sem que isso signifique que uma variedade seja superior à outra.", "D": "comprovar que aprendeu a única forma correta de falar português, deixando de lado formas regionais inferiores.", "E": "demonstrar domínio exclusivo da norma-padrão, anulando o uso de qualquer outra variedade em sua vida cotidiana."}, "correta": "C", "explicacao": "Adequar o registro conforme o contexto (entrevista formal vs. convívio familiar) é a competência comunicativa de adaptação situacional — não implica hierarquia entre variedades, apenas uso apropriado a cada situação."}, {"tema": "Sociolinguística / Norma-padrão e história", "enunciado": "\"Tem gente que despreza quem fala 'diferente', mas esquece que a própria norma-padrão também já foi, um dia, apenas uma das variedades do latim que se transformou ao longo do tempo.\" (Comentário de um professor de Português)\n\nO argumento do professor evidencia, sobretudo, que a norma-padrão:", "alternativas": {"A": "é uma variedade fixa e imutável desde a colonização portuguesa do Brasil.", "B": "resulta de um processo histórico de seleção social de uma variedade entre outras, e não de uma superioridade linguística natural.", "C": "deve substituir, com o tempo, todas as demais variedades linguísticas do português brasileiro.", "D": "é a única variedade que sofreu transformações ao longo da história da língua.", "E": "foi criada artificialmente por gramáticos, sem qualquer relação com a fala de falantes reais."}, "correta": "B", "explicacao": "O comentário do professor mostra que a norma-padrão é resultado de um processo histórico e social de seleção — uma entre várias variedades que se tornou prestigiada —, e não uma forma naturalmente superior às demais."}, {"tema": "Morfologia / Prefixação", "enunciado": "\"O desentendimento entre os dois sócios já durava meses, e a desconfiança crescia a cada reunião.\" (Trecho de uma crônica sobre relações de trabalho)\n\nAs palavras \"desentendimento\" e \"desconfiança\", destacadas no texto, compartilham, em sua formação, o(a):", "alternativas": {"A": "mesmo radical, já que derivam de um único verbo comum às duas palavras.", "B": "mesmo prefixo \"des-\", que indica, em ambas, a ideia de ausência ou afastamento em relação ao que o radical expressa.", "C": "mesma classe gramatical de adjetivo, pois as duas qualificam diretamente o substantivo \"sócios\".", "D": "mesmo sufixo flexional de número, responsável por indicar a pluralidade das palavras.", "E": "mesmo processo de composição por aglutinação, formado pela junção de duas palavras inteiras."}, "correta": "B", "explicacao": "Ambas as palavras compartilham o prefixo \"des-\", que indica ausência/afastamento (\"desentendimento\" = falta de entendimento; \"desconfiança\" = falta de confiança). Os radicais (\"entender\"/\"confiar\") são diferentes, então não é o mesmo radical."}, {"tema": "Morfologia / Derivação prefixal e sufixal", "enunciado": "\"Aquele time tem um goleiro inacreditável: vive fazendo defesas impossíveis.\" (Comentário esportivo)\n\nEm relação à palavra \"inacreditável\", é correto afirmar que ela é formada por:", "alternativas": {"A": "composição por justaposição, unindo duas palavras existentes sem alteração de forma.", "B": "derivação prefixal e sufixal simultânea, com o radical \"crer/acreditar\" recebendo prefixo e sufixo.", "C": "apenas flexão de grau, já que \"inacreditável\" é o superlativo de \"crível\".", "D": "onomatopeia, pois reproduz pela escrita um som relacionado à incredulidade.", "E": "composição por aglutinação, com perda de fonemas na junção dos radicais \"in\" e \"acreditar\"."}, "correta": "B", "explicacao": "\"Inacreditável\" é formada pelo radical \"acreditar\" + prefixo \"in-\" (negação) + sufixo \"-vel\" (possibilidade) — uma derivação parassintética/prefixal e sufixal simultânea, e não composição."}, {"tema": "Morfologia / Classes gramaticais (advérbio)", "enunciado": "\"A reforma do prédio, surpreendentemente, ficou pronta antes do prazo combinado com os moradores.\" (Notícia de bairro)\n\nNa frase, a palavra \"surpreendentemente\" pertence à classe gramatical dos advérbios porque:", "alternativas": {"A": "indica uma característica permanente do substantivo \"reforma\", como se fosse um adjetivo.", "B": "modifica o verbo \"ficou\", expressando o modo ou a circunstância em que a ação/estado se realizou.", "C": "substitui o nome \"prédio\" na frase, evitando repetição desnecessária.", "D": "liga duas orações da frase, estabelecendo uma relação de causa e consequência.", "E": "flexiona-se em gênero e número de acordo com o substantivo a que se refere."}, "correta": "B", "explicacao": "Advérbios modificam verbos, adjetivos ou outros advérbios, indicando circunstância. Aqui, \"surpreendentemente\" modifica o verbo \"ficou\", expressando o modo/circunstância em que a reforma se concluiu — e não flexiona em gênero/número como um adjetivo."}, {"tema": "Morfologia / Processos de formação de palavras", "enunciado": "\"O guarda-chuva ficou esquecido em cima da mesa, debaixo da janela aberta.\" (Frase retirada de uma narrativa)\n\nAs palavras \"guarda-chuva\" e \"debaixo\", presentes no texto, ilustram dois processos distintos de formação de palavras, respectivamente:", "alternativas": {"A": "derivação sufixal e derivação prefixal.", "B": "composição por justaposição (guarda-chuva) e composição por aglutinação (debaixo).", "C": "composição por aglutinação (guarda-chuva) e derivação parassintética (debaixo).", "D": "flexão de número (guarda-chuva) e flexão de grau (debaixo).", "E": "onomatopeia (guarda-chuva) e composição por justaposição (debaixo)."}, "correta": "B", "explicacao": "\"Guarda-chuva\" junta dois radicais sem perda de fonemas e com hífen — composição por justaposição. \"Debaixo\" junta \"de\" + \"baixo\" com fusão fonética (sem hífen, formando uma só palavra) — composição por aglutinação."}, {"tema": "Morfologia / Classes gramaticais (adjetivo)", "enunciado": "\"Ela é rápida, organizada e, principalmente, paciente com os alunos mais inquietos.\" (Comentário sobre uma professora)\n\nAs palavras destacadas \"rápida\", \"organizada\" e \"paciente\" pertencem, nessa frase, à mesma classe gramatical porque:", "alternativas": {"A": "todas indicam ações praticadas pela professora em sala de aula.", "B": "todas atribuem características à professora, concordando com ela em gênero e/ou número — função própria do adjetivo.", "C": "todas funcionam como conectivos que unem as orações da frase.", "D": "todas substituem o nome \"professora\", evitando repetição.", "E": "todas indicam o momento exato em que a ação ocorre."}, "correta": "B", "explicacao": "Adjetivos atribuem características a um substantivo e concordam com ele em gênero/número. \"Rápida\", \"organizada\" e \"paciente\" qualificam \"ela\" (a professora), confirmando sua função adjetiva."}, {"tema": "Morfologia / Flexão verbal", "enunciado": "\"Antigamente, poucas famílias tinham televisão; hoje, quase todas têm várias telas em casa.\" (Trecho de uma redação escolar sobre tecnologia)\n\nNo trecho, as palavras \"tinham\" e \"têm\" são formas do mesmo verbo (\"ter\") em tempos diferentes. Esse tipo de variação na palavra, motivada por tempo e pessoa verbal, é estudado pela morfologia como:", "alternativas": {"A": "derivação, já que cada forma verbal é uma palavra nova, formada a partir de um radical diferente.", "B": "flexão verbal, processo pelo qual o mesmo verbo assume formas distintas para indicar tempo, modo, número e pessoa.", "C": "composição, pois as duas formas resultam da junção de dois verbos distintos.", "D": "classe gramatical, uma vez que \"tinham\" e \"têm\" pertencem a categorias gramaticais diferentes.", "E": "sufixação avaliativa, que indica grandeza ou intensidade da ação verbal."}, "correta": "B", "explicacao": "\"Tinham\" e \"têm\" são flexões do mesmo verbo \"ter\", variando conforme tempo (pretérito imperfeito / presente) e pessoa — a flexão verbal não cria palavras novas, apenas altera a forma para indicar essas categorias gramaticais."}, {"tema": "Morfologia / Sufixo diminutivo", "enunciado": "\"Comprei um celular novinho, mas o carregador já veio meio velhinho.\" (Comentário em uma rede social)\n\nOs sufixos presentes em \"novinho\" e \"velhinho\" cumprem, nessa frase, a função de:", "alternativas": {"A": "indicar o plural das palavras \"novo\" e \"velho\".", "B": "expressar grau diminutivo, com valor afetivo/expressivo, sem necessariamente indicar tamanho reduzido.", "C": "transformar os adjetivos em substantivos abstratos.", "D": "formar o feminino das palavras \"novo\" e \"velho\".", "E": "indicar que as palavras pertencem à classe dos verbos."}, "correta": "B", "explicacao": "O sufixo \"-inho\" aqui expressa grau diminutivo com valor afetivo/expressivo (um celular \"bem novo\"; um carregador \"meio gasto\"), não indicando necessariamente tamanho físico reduzido — uso comum e expressivo do diminutivo em português."}, {"tema": "Sintaxe / Período simples", "enunciado": "\"Choveu bastante na cidade durante toda a madrugada.\" (Previsão do tempo, adaptada)\n\nSobre a estrutura sintática da frase acima, é correto afirmar que ela constitui um período simples porque:", "alternativas": {"A": "apresenta apenas uma oração, com um único verbo (\"choveu\"), ainda que sem sujeito determinado.", "B": "possui dois verbos que se referem à mesma ação, formando uma oração composta por coordenação.", "C": "não apresenta nenhum tipo de predicado, apenas adjuntos adverbiais.", "D": "contém uma oração principal e uma oração subordinada adverbial de tempo.", "E": "depende de uma conjunção para ligar duas ideias completas."}, "correta": "A", "explicacao": "A frase tem apenas um verbo (\"choveu\", verbo impessoal que indica fenômeno da natureza, sem sujeito) — por isso é um período simples, com uma única oração."}, {"tema": "Sintaxe / Objeto direto", "enunciado": "\"A diretora da escola anunciou o resultado do concurso de redação para os alunos do 1º ano.\" (Aviso escolar)\n\nNa frase, o termo \"o resultado do concurso de redação\" exerce a função sintática de:", "alternativas": {"A": "sujeito da oração, pois é sobre ele que se faz uma afirmação.", "B": "objeto direto, complemento exigido pelo verbo transitivo direto \"anunciou\".", "C": "objeto indireto, complemento ligado ao verbo por meio de preposição obrigatória.", "D": "predicativo do sujeito, atribuindo uma característica à diretora.", "E": "adjunto adverbial, indicando a circunstância em que o anúncio ocorreu."}, "correta": "B", "explicacao": "\"Anunciar\" é verbo transitivo direto. \"O resultado do concurso de redação\" completa seu sentido sem preposição, exercendo a função de objeto direto. O sujeito da oração é \"a diretora da escola\"."}, {"tema": "Sintaxe / Predicativo do sujeito", "enunciado": "\"Depois da longa viagem, os passageiros pareciam exaustos, mas felizes com o passeio.\" (Relato de viagem)\n\nO termo \"exaustos\", na frase, classifica-se sintaticamente como predicativo do sujeito porque:", "alternativas": {"A": "indica o lugar onde os passageiros se encontravam durante a viagem.", "B": "atribui uma característica ao sujeito \"os passageiros\" por meio do verbo de ligação \"pareciam\".", "C": "completa o sentido de um verbo transitivo direto, funcionando como objeto direto.", "D": "liga duas orações distintas, estabelecendo relação de causa e efeito.", "E": "modifica o verbo \"pareciam\", indicando o modo como a ação foi realizada."}, "correta": "B", "explicacao": "\"Parecer\" é verbo de ligação, e \"exaustos\" atribui uma característica ao sujeito \"os passageiros\" — função típica do predicativo do sujeito, e não de objeto direto (que exigiria verbo transitivo de ação)."}, {"tema": "Sintaxe / Objeto indireto", "enunciado": "\"O técnico entregou aos jogadores um plano detalhado para a partida decisiva.\" (Reportagem esportiva)\n\nNa frase, o termo \"aos jogadores\" exerce a função sintática de:", "alternativas": {"A": "sujeito da oração, já que pratica a ação de receber o plano.", "B": "objeto direto, complemento que não exige preposição para se ligar ao verbo.", "C": "objeto indireto, complemento ligado ao verbo \"entregou\" por meio da preposição \"a\".", "D": "adjunto adnominal, caracterizando o substantivo \"plano\".", "E": "predicativo do objeto, atribuindo uma qualidade ao termo \"plano detalhado\"."}, "correta": "C", "explicacao": "\"Entregar\" é verbo transitivo direto e indireto. \"Um plano detalhado\" é o objeto direto (sem preposição); \"aos jogadores\" é o objeto indireto, ligado ao verbo pela preposição \"a\"."}, {"tema": "Sintaxe / Adjunto adverbial", "enunciado": "\"Os moradores do bairro reclamaram, durante a reunião, da falta de iluminação nas ruas.\" (Ata de reunião de condomínio, adaptada)\n\nO termo \"durante a reunião\", na frase, exerce a função sintática de adjunto adverbial de tempo, pois:", "alternativas": {"A": "indica a causa da reclamação feita pelos moradores.", "B": "atribui uma característica permanente ao substantivo \"moradores\".", "C": "expressa o momento (a circunstância temporal) em que a ação de reclamar ocorreu, sem ser exigido pelo verbo.", "D": "funciona como complemento obrigatório do verbo \"reclamaram\", sem o qual a frase ficaria incompleta.", "E": "substitui o sujeito da oração, evitando a repetição da palavra \"moradores\"."}, "correta": "C", "explicacao": "O adjunto adverbial é um termo acessório (não exigido pelo verbo) que indica circunstância — aqui, temporal (\"durante a reunião\"). Diferente do complemento verbal, pode ser retirado sem comprometer a estrutura sintática da frase."}, {"tema": "Sintaxe / Sujeito da oração", "enunciado": "\"O documentário sobre o aquecimento global impressionou os estudantes presentes na exibição.\" (Comentário sobre uma atividade escolar)\n\nConsiderando a estrutura sintática da frase, o sujeito da oração é:", "alternativas": {"A": "\"os estudantes presentes\", pois são eles que demonstram a reação de impressão.", "B": "\"o aquecimento global\", tema central abordado pelo documentário.", "C": "\"o documentário sobre o aquecimento global\", pois é ele que pratica a ação expressa pelo verbo \"impressionou\".", "D": "\"na exibição\", por indicar o local em que a ação ocorreu.", "E": "Não é possível identificar o sujeito, pois a oração apresenta sujeito indeterminado."}, "correta": "C", "explicacao": "O sujeito é quem pratica a ação verbal. Aqui, é \"o documentário sobre o aquecimento global\" que impressiona — ele é o agente da ação \"impressionou\"; \"os estudantes\" são o objeto direto (quem recebe a ação)."}, {"tema": "Morfologia / Radical e afixos", "enunciado": "Considere a base apresentada na questão dissertativa de uma prova: as palavras \"desorganização\" e \"reorganização\" compartilham o mesmo radical \"organiz-\". A diferença entre elas está, principalmente,:", "alternativas": {"A": "no sufixo, já que uma delas não possui sufixo nominal de ação.", "B": "no prefixo: \"des-\" indica desfazer/ausência, enquanto \"re-\" indica repetição/refazer da ação expressa pelo radical.", "C": "na classe gramatical, pois uma é substantivo e a outra é verbo.", "D": "no processo de formação, pois uma é composição e a outra é derivação.", "E": "no número de sílabas, responsável pela diferença de sentido entre as duas palavras."}, "correta": "B", "explicacao": "Ambas mantêm o mesmo radical e o mesmo sufixo \"-ção\" (indicando ação/resultado), mas se diferenciam pelo prefixo: \"des-\" (desfazer a organização) e \"re-\" (organizar de novo)."}, {"tema": "Sintaxe / Sujeito e predicado", "enunciado": "\"A equipe de resgate encontrou os alpinistas exaustos, mas em segurança, no topo da montanha.\" (Notícia, adaptada)\n\nNessa frase, o sujeito da oração e a função do termo \"no topo da montanha\" são, respectivamente:", "alternativas": {"A": "\"os alpinistas\" (sujeito) e adjunto adverbial de lugar (\"no topo da montanha\").", "B": "\"a equipe de resgate\" (sujeito) e adjunto adverbial de lugar, indicando onde a ação de encontrar ocorreu.", "C": "\"a equipe de resgate\" (sujeito) e objeto indireto do verbo \"encontrou\".", "D": "\"os alpinistas exaustos\" (sujeito) e predicativo do objeto.", "E": "\"no topo da montanha\" (sujeito invertido) e adjunto adnominal de \"alpinistas\"."}, "correta": "B", "explicacao": "Quem pratica a ação de \"encontrar\" é \"a equipe de resgate\" (sujeito). \"No topo da montanha\" indica o lugar onde a ação ocorreu, sendo um adjunto adverbial de lugar — termo acessório, não exigido pelo verbo."}, {"tema": "Sociolinguística / Conceito de erro", "enunciado": "Um aluno escreve em sua redação \"a gente vamos\" e o professor, em vez de apenas marcar como \"errado\", explica que essa construção é regular em certas variedades do português e ensina, em seguida, a forma da norma-padrão. Essa abordagem reflete", "alternativas": {"A": "uma atitude permissiva, que incentiva o aluno a nunca aprender a norma-padrão.", "B": "uma abordagem sociolinguística do ensino, que reconhece a variedade do aluno sem desqualificá-la, ao mesmo tempo em que amplia seu repertório linguístico.", "C": "um erro pedagógico grave, pois o aluno deveria ser corrigido sem qualquer explicação.", "D": "uma falta de rigor gramatical incompatível com a avaliação escolar.", "E": "uma estratégia válida apenas para alunos de escolas particulares."}, "correta": "B", "explicacao": "Explicar a regularidade da variedade do aluno e, ao mesmo tempo, ensinar a forma da norma-padrão é a abordagem sociolinguística de ensino: amplia o repertório sem estigmatizar a fala de origem."}, {"tema": "Variação linguística / Diastrática", "enunciado": "A diferença de vocabulário entre um grupo de médicos discutindo um diagnóstico e um grupo de adolescentes comentando um jogo online, ambos morando na mesma cidade, ilustra principalmente a variação linguística do tipo", "alternativas": {"A": "diatópica, pois reflete a distância geográfica entre os dois grupos.", "B": "diastrática, relacionada a diferenças de grupo social, faixa etária e área de atuação.", "C": "diacrônica, relacionada à passagem do tempo histórico entre os falantes.", "D": "dialetal, restrita a um dialeto regional específico do português.", "E": "fonética, relacionada apenas à pronúncia das palavras usadas por cada grupo."}, "correta": "B", "explicacao": "A variação diastrática está ligada a diferenças sociais — idade, profissão, grupo social. Médicos e adolescentes, mesmo na mesma cidade, usam vocabulário distinto por pertencerem a grupos sociais e etários diferentes."}, {"tema": "Morfologia / Composição por justaposição", "enunciado": "Assinale a alternativa em que a palavra destacada é formada por composição por justaposição (junção de duas palavras sem perda de fonemas, geralmente com hífen ou não).", "alternativas": {"A": "infeliz (in + feliz)", "B": "girassol (gira + sol)", "C": "felicidade (felic + idade)", "D": "desfazer (des + fazer)", "E": "rapidamente (rápida + mente)"}, "correta": "B", "explicacao": "\"Girassol\" junta \"gira\" e \"sol\" sem perda de fonemas — composição por justaposição. As demais alternativas são casos de derivação prefixal (A, D) ou sufixal (C, E)."}, {"tema": "Morfologia / Composição por aglutinação", "enunciado": "Assinale a alternativa em que a palavra destacada é formada por composição por aglutinação (junção de duas palavras com perda de fonemas e fusão em uma só forma).", "alternativas": {"A": "passatempo (passa + tempo)", "B": "planalto (plano + alto, com perda do \"o\" final de \"plano\")", "C": "guarda-roupa (guarda + roupa)", "D": "couve-flor (couve + flor)", "E": "girassol (gira + sol)"}, "correta": "B", "explicacao": "\"Planalto\" resulta da fusão de \"plano\" + \"alto\", com perda do \"o\" final de \"plano\" — característica da composição por aglutinação. As demais alternativas mantêm as duas palavras completas (justaposição)."}, {"tema": "Sintaxe / Verbo de ligação vs. verbo transitivo", "enunciado": "Considere as duas frases:\nI. \"O jantar está delicioso.\"\nII. \"Ela fez o jantar rapidamente.\"\n\nA diferença sintática fundamental entre elas é que:", "alternativas": {"A": "em I, \"está\" é verbo de ligação e \"delicioso\" é predicativo do sujeito; em II, \"fez\" é verbo transitivo direto e \"o jantar\" é objeto direto.", "B": "em ambas as frases, o verbo é de ligação e o termo seguinte é predicativo do sujeito.", "C": "em ambas as frases, o verbo é transitivo direto e o termo seguinte é objeto direto.", "D": "em I, \"delicioso\" é objeto direto; em II, \"o jantar\" é predicativo do sujeito.", "E": "não há diferença sintática relevante entre as duas estruturas."}, "correta": "A", "explicacao": "Em I, \"estar\" é verbo de ligação que liga o sujeito \"o jantar\" à característica \"delicioso\" (predicativo do sujeito). Em II, \"fazer\" é verbo de ação transitivo direto, e \"o jantar\" é o objeto direto da ação."}, {"tema": "Sintaxe / Objeto direto vs. predicativo", "enunciado": "Em qual das alternativas o termo destacado exerce a função de objeto direto, e não de predicativo do sujeito?", "alternativas": {"A": "Os alunos pareciam cansados após a prova.", "B": "O professor explicou a matéria com muita clareza.", "C": "O time ficou eliminado do campeonato.", "D": "Ela permanece otimista mesmo diante das dificuldades.", "E": "A sala estava silenciosa durante a explicação."}, "correta": "B", "explicacao": "Em B, \"explicar\" é verbo transitivo direto de ação e \"a matéria\" é seu objeto direto. As demais alternativas usam verbos de ligação (\"parecer\", \"ficar\", \"permanecer\", \"estar\"), com predicativo do sujeito."}, {"tema": "Morfologia / Sufixo de grau aumentativo", "enunciado": "\"Que casarão enorme! Deve ter um jardim imenso também.\" — Os sufixos em \"casarão\" e a palavra \"imenso\" relacionam-se, respectivamente, com:", "alternativas": {"A": "grau aumentativo sintético (\"casarão\") e grau aumentativo analítico, expresso por palavra inteira (\"imenso\").", "B": "grau diminutivo sintético em ambas as palavras.", "C": "flexão de número, indicando pluralidade em ambas as palavras.", "D": "derivação prefixal em \"casarão\" e composição em \"imenso\".", "E": "classes gramaticais distintas, sendo \"casarão\" verbo e \"imenso\" advérbio."}, "correta": "A", "explicacao": "\"Casarão\" usa o sufixo aumentativo \"-ão\" (grau sintético, dentro da própria palavra). \"Imenso\" expressa a ideia de grandeza por uma palavra inteira e independente, e não por sufixo — por isso é grau aumentativo analítico."}, {"tema": "Sintaxe / Identificação de termos", "enunciado": "\"O diretor da empresa enviou um comunicado importante a todos os funcionários ontem.\"\n\nNessa frase, as funções sintáticas de \"um comunicado importante\" e \"a todos os funcionários\" são, respectivamente:", "alternativas": {"A": "objeto direto e objeto indireto, complementos do verbo transitivo direto e indireto \"enviou\".", "B": "sujeito e objeto direto, ambos relacionados à ação do verbo \"enviou\".", "C": "predicativo do sujeito e adjunto adverbial de modo.", "D": "objeto indireto e objeto direto, nessa ordem.", "E": "adjunto adnominal e adjunto adverbial de tempo."}, "correta": "A", "explicacao": "\"Enviar\" é verbo transitivo direto e indireto. \"Um comunicado importante\" (sem preposição) é objeto direto; \"a todos os funcionários\" (com preposição \"a\") é objeto indireto."}, {"tema": "Morfologia / Flexão de grau do adjetivo", "enunciado": "\"Este é o melhor restaurante da cidade, sem dúvida.\" A palavra \"melhor\" representa, morfologicamente, um caso de:", "alternativas": {"A": "superlativo absoluto sintético do adjetivo \"bom\".", "B": "comparativo de superioridade irregular do adjetivo \"bom\" (forma especial, e não \"mais bom\").", "C": "diminutivo irregular do adjetivo \"bom\".", "D": "flexão de número do substantivo \"bom\".", "E": "derivação sufixal regular, com acréscimo do sufixo \"-or\" ao radical \"bem\"."}, "correta": "B", "explicacao": "\"Melhor\" é a forma comparativa de superioridade irregular de \"bom\" (não se diz \"mais bom\" em português padrão). É um caso clássico de flexão irregular de grau do adjetivo."}, {"tema": "Sintaxe / Adjunto adnominal", "enunciado": "\"O livro antigo da biblioteca municipal foi restaurado pelos especialistas.\"\n\nNa frase, os termos \"antigo\" e \"da biblioteca municipal\", que caracterizam o substantivo \"livro\", exercem a função sintática de:", "alternativas": {"A": "predicativo do sujeito, pois atribuem características ao sujeito da oração.", "B": "adjunto adnominal, pois caracterizam e especificam o substantivo \"livro\", sem depender do verbo.", "C": "objeto direto, pois completam o sentido do verbo \"restaurar\".", "D": "complemento nominal, pois completam o sentido de um substantivo abstrato derivado de verbo.", "E": "aposto explicativo, pois apenas esclarecem o termo anterior sem relação de dependência."}, "correta": "B", "explicacao": "Tanto o adjetivo \"antigo\" quanto a expressão \"da biblioteca municipal\" caracterizam e especificam o substantivo \"livro\" — função do adjunto adnominal, que se liga ao nome (e não ao verbo, como ocorreria no predicativo)."}, {"tema": "Variação linguística / Diafásica", "enunciado": "Um mesmo aluno escreve \"Excelentíssimo Senhor Diretor\" em uma carta formal à escola e, no grupo de WhatsApp dos amigos, escreve apenas \"e ae, vamo jogar bola?\". Essa diferença de registro, dentro do mesmo falante, é estudada como variação", "alternativas": {"A": "diatópica, decorrente da diferença geográfica entre os interlocutores.", "B": "diastrática, decorrente da diferença de classe social entre os interlocutores.", "C": "diafásica, decorrente da adequação do registro a diferentes situações comunicativas.", "D": "diacrônica, decorrente da passagem do tempo histórico na vida do falante.", "E": "dialetal, decorrente de um dialeto regional específico."}, "correta": "C", "explicacao": "A variação diafásica ocorre quando o mesmo falante adapta seu registro conforme a situação comunicativa — uma carta formal exige formalidade; uma conversa entre amigos permite informalidade."}, {"tema": "Morfologia / Substantivo abstrato e concreto", "enunciado": "\"A felicidade das crianças ao ver o cachorro foi contagiante.\" Sobre as palavras destacadas, é correto afirmar que:", "alternativas": {"A": "\"felicidade\" é substantivo concreto e \"cachorro\" é substantivo abstrato.", "B": "\"felicidade\" é substantivo abstrato (nomeia sentimento/estado, sem existência física própria) e \"cachorro\" é substantivo concreto (designa ser de existência física e independente).", "C": "ambas as palavras são substantivos abstratos, pois derivam de adjetivos.", "D": "ambas as palavras são substantivos concretos, pois podem ser vistas e tocadas.", "E": "\"felicidade\" é adjetivo e \"cachorro\" é substantivo próprio."}, "correta": "B", "explicacao": "Substantivos abstratos nomeiam sentimentos, estados, qualidades ou ações sem existência física própria (\"felicidade\"). Substantivos concretos designam seres de existência física e independente (\"cachorro\")."}, {"tema": "Sintaxe / Vocativo", "enunciado": "\"Maria, venha aqui agora, por favor!\" O termo \"Maria\", nessa frase, exerce a função sintática de:", "alternativas": {"A": "sujeito da oração, pois é quem deve praticar a ação de vir.", "B": "objeto direto, complemento do verbo \"venha\".", "C": "vocativo, termo usado para chamar, invocar ou interpelar diretamente o interlocutor, sem função sintática ligada ao verbo.", "D": "aposto explicativo, pois esclarece quem é a pessoa mencionada anteriormente.", "E": "predicativo do sujeito, atribuindo uma característica a quem fala."}, "correta": "C", "explicacao": "O vocativo é o termo usado para chamar diretamente o interlocutor (\"Maria\"), sem estabelecer relação sintática com o predicado da oração — é independente da estrutura sintática central."}, {"tema": "Morfologia / Verbo regular e irregular", "enunciado": "Considere os verbos \"amar\" (eu amo, eu amei) e \"fazer\" (eu faço, eu fiz). A diferença fundamental entre eles, do ponto de vista morfológico, é que:", "alternativas": {"A": "\"amar\" é verbo irregular e \"fazer\" é verbo regular.", "B": "\"amar\" segue o padrão regular de conjugação do seu radical em todas as flexões; \"fazer\" sofre alterações no radical (\"faç-\", \"fiz-\") ao longo da conjugação, sendo irregular.", "C": "ambos os verbos são irregulares, pois mudam de radical em todas as formas.", "D": "ambos os verbos são regulares, pois pertencem à mesma conjugação.", "E": "a diferença está apenas no número de sílabas de cada verbo."}, "correta": "B", "explicacao": "Verbos regulares mantêm o radical estável em todas as flexões (\"am-o\", \"am-ei\"). Verbos irregulares, como \"fazer\", sofrem alterações no radical conforme o tempo/pessoa (\"faç-o\", \"fiz-\"), sendo, por isso, irregulares."}, {"tema": "Sintaxe / Complemento nominal", "enunciado": "\"Os moradores têm medo da violência naquele bairro.\" O termo \"da violência\", nessa frase, completa o sentido do substantivo abstrato \"medo\", caracterizando-se como:", "alternativas": {"A": "objeto direto, pois completa diretamente o sentido de um verbo transitivo direto.", "B": "complemento nominal, pois completa o sentido de um nome (substantivo abstrato), regido por preposição.", "C": "adjunto adnominal, pois caracteriza o substantivo sem relação de complementação obrigatória.", "D": "predicativo do sujeito, pois atribui uma característica ao sujeito \"os moradores\".", "E": "sujeito da oração, pois pratica a ação do verbo \"ter\"."}, "correta": "B", "explicacao": "\"Medo\" é substantivo abstrato derivado da ideia de \"temer\". \"Da violência\" completa o sentido desse substantivo, sendo regido pela preposição \"de\" — caracterizando-se como complemento nominal, e não adjunto adnominal (que seria apenas caracterização, sem complementação semântica obrigatória)."}, {"tema": "Variação linguística / Conceito de heterogeneidade", "enunciado": "A ideia de que \"o português é uma língua única e uniforme, falada da mesma forma em todo o Brasil\" é, segundo a sociolinguística moderna,", "alternativas": {"A": "correta, pois a escola garante uniformidade total na fala de todos os brasileiros.", "B": "uma simplificação que não corresponde à realidade: o português brasileiro é heterogêneo, variando conforme região, classe social, idade e situação comunicativa.", "C": "verdadeira apenas para a modalidade escrita formal da língua.", "D": "uma constatação cientificamente comprovada pelos estudos fonéticos mais recentes.", "E": "válida apenas para as capitais do país, mas não para o interior."}, "correta": "B", "explicacao": "Nenhuma língua viva e falada por uma população extensa é uniforme. O português brasileiro varia conforme região, classe social, idade, escolaridade e contexto — a heterogeneidade é constitutiva da língua, não uma falha."}, {"tema": "Morfologia / Locução adjetiva", "enunciado": "\"A casa de madeira ficava à beira do rio, num lugar de paz.\" A expressão \"de madeira\", nessa frase, equivale semanticamente a um adjetivo (\"casa de madeira\" = \"casa madeireira\"/\"casa feita de madeira\"). Esse tipo de construção é chamado de:", "alternativas": {"A": "locução adjetiva, expressão formada por preposição + substantivo, que exerce o papel de um adjetivo.", "B": "locução verbal, formada por dois ou mais verbos com sentido único.", "C": "aposto explicativo, pois esclarece um termo anterior.", "D": "complemento nominal, pois completa o sentido de um substantivo abstrato.", "E": "objeto indireto, pois está ligado ao verbo por meio de preposição."}, "correta": "A", "explicacao": "\"De madeira\" é uma locução adjetiva: uma expressão (preposição + substantivo) que desempenha a função de um adjetivo, caracterizando o substantivo \"casa\", equivalente a \"madeireira\"."}, {"tema": "Sintaxe / Período composto por coordenação", "enunciado": "\"O sol se escondeu, e a temperatura caiu rapidamente.\" Essa frase constitui um período composto por coordenação porque:", "alternativas": {"A": "apresenta duas orações independentes entre si, ligadas pela conjunção coordenativa \"e\", sem relação de dependência sintática.", "B": "apresenta uma oração principal e outra que depende sintaticamente da primeira.", "C": "apresenta apenas uma oração, com dois verbos no mesmo tempo.", "D": "as duas orações compartilham exatamente o mesmo sujeito e o mesmo predicado.", "E": "a conjunção \"e\" estabelece relação de subordinação adverbial de causa."}, "correta": "A", "explicacao": "No período composto por coordenação, as orações são sintaticamente independentes (cada uma tem sentido completo isoladamente), ligadas por conjunção coordenativa — aqui, \"e\" — sem relação de subordinação."}, {"tema": "Morfologia / Substantivo coletivo", "enunciado": "\"Uma matilha de lobos cercou o acampamento durante a noite.\" A palavra \"matilha\" é um substantivo classificado como:", "alternativas": {"A": "substantivo próprio, pois nomeia um ser específico e único.", "B": "substantivo coletivo, pois designa um conjunto de seres da mesma espécie (lobos) com um único termo.", "C": "substantivo abstrato, pois nomeia um sentimento ou estado.", "D": "substantivo composto, formado pela junção de duas palavras.", "E": "substantivo derivado, formado a partir de outro substantivo por sufixação avaliativa."}, "correta": "B", "explicacao": "\"Matilha\" designa, com uma única palavra, um conjunto de seres da mesma espécie (cães/lobos) — definição clássica de substantivo coletivo."}, {"tema": "Sintaxe / Oração sem sujeito (impessoal)", "enunciado": "\"Há muitos problemas a resolver antes do fim do projeto.\" Sobre o sujeito dessa oração, é correto afirmar que:", "alternativas": {"A": "o sujeito é \"muitos problemas\", concordando normalmente com o verbo \"há\".", "B": "a oração apresenta sujeito oculto, facilmente identificável pelo contexto.", "C": "a oração não tem sujeito (oração sem sujeito/impessoal), pois o verbo \"haver\", no sentido de \"existir\", é impessoal e fica sempre na 3ª pessoa do singular.", "D": "o sujeito é indeterminado, pois não se sabe quem enfrenta os problemas.", "E": "o sujeito é oculto e equivale a \"nós\", referindo-se à equipe do projeto."}, "correta": "C", "explicacao": "O verbo \"haver\", no sentido de \"existir\", é impessoal e não tem sujeito — fica sempre na 3ª pessoa do singular, independentemente do número do termo que o segue (\"muitos problemas\" é objeto direto, não sujeito)."}, {"tema": "Morfologia / Classes gramaticais (pronome)", "enunciado": "\"Ele me disse que viria, mas eu não acreditei nele.\" As palavras destacadas \"Ele\", \"me\" e \"nele\" pertencem todas à classe gramatical dos pronomes porque:", "alternativas": {"A": "todas indicam ações realizadas pelos sujeitos da frase.", "B": "todas substituem ou acompanham substantivos, retomando pessoas do discurso sem repeti-las pelo nome.", "C": "todas funcionam como conectivos que ligam as duas orações.", "D": "todas atribuem características aos substantivos da frase.", "E": "todas indicam circunstâncias de tempo ou lugar."}, "correta": "B", "explicacao": "Pronomes substituem ou retomam substantivos/pessoas do discurso sem repeti-los pelo nome próprio. \"Ele\", \"me\" e \"nele\" cumprem exatamente essa função, evitando repetição desnecessária do referente."}, {"tema": "Sintaxe / Aposto explicativo", "enunciado": "\"Machado de Assis, o maior nome da literatura brasileira, nasceu no Rio de Janeiro.\" O termo \"o maior nome da literatura brasileira\", nessa frase, exerce a função sintática de:", "alternativas": {"A": "sujeito da oração, concorrendo com \"Machado de Assis\" pela mesma função.", "B": "aposto explicativo, pois esclarece ou detalha o termo anterior (\"Machado de Assis\"), sem função sintática própria ligada ao verbo.", "C": "objeto direto do verbo \"nasceu\".", "D": "predicativo do sujeito, atribuído pelo verbo de ligação \"nasceu\".", "E": "complemento nominal, completando o sentido de um substantivo abstrato."}, "correta": "B", "explicacao": "O aposto explicativo esclarece ou detalha um termo anterior, geralmente isolado por vírgulas, sem estabelecer relação sintática obrigatória com o verbo da oração. \"O maior nome da literatura brasileira\" explica quem é \"Machado de Assis\"."}, {"tema": "Morfologia / Numeral", "enunciado": "\"Ele foi o primeiro colocado na maratona, completando os quarenta e dois quilômetros em tempo recorde.\" As palavras \"primeiro\" e \"quarenta e dois\" pertencem à classe gramatical dos:", "alternativas": {"A": "adjetivos, pois qualificam diretamente os substantivos da frase.", "B": "numerais, pois indicam, respectivamente, ordem (numeral ordinal) e quantidade exata (numeral cardinal).", "C": "pronomes indefinidos, pois indicam quantidade aproximada.", "D": "advérbios de intensidade, pois modificam o sentido do verbo \"completar\".", "E": "substantivos abstratos, pois nomeiam conceitos matemáticos."}, "correta": "B", "explicacao": "\"Primeiro\" é numeral ordinal (indica posição/ordem) e \"quarenta e dois\" é numeral cardinal (indica quantidade exata) — ambos pertencem à classe gramatical dos numerais."}, {"tema": "Sintaxe / Predicado verbal e nominal", "enunciado": "Considere as frases:\nI. \"O menino correu rapidamente pelo parque.\"\nII. \"O menino está cansado após a corrida.\"\n\nSobre a classificação do predicado nessas frases, é correto afirmar que:", "alternativas": {"A": "em I, o predicado é verbal, pois o núcleo significativo está no verbo de ação \"correu\"; em II, o predicado é nominal, pois o núcleo está no predicativo \"cansado\", ligado pelo verbo de ligação \"está\".", "B": "em ambas as frases, o predicado é verbal, pois há um verbo em cada uma.", "C": "em ambas as frases, o predicado é nominal, pois há um adjetivo relacionado ao sujeito.", "D": "em I, o predicado é nominal; em II, o predicado é verbal.", "E": "não é possível classificar o predicado sem identificar o objeto direto da frase."}, "correta": "A", "explicacao": "O predicado verbal tem como núcleo de sentido o verbo de ação (\"correu\"). O predicado nominal tem como núcleo de sentido o predicativo do sujeito (\"cansado\"), expresso por meio de um verbo de ligação (\"está\")."}, {"tema": "Morfologia / Conjunção", "enunciado": "\"Estudei bastante, mas não tive tempo de revisar toda a matéria.\" A palavra \"mas\", nessa frase, pertence à classe gramatical das conjunções porque:", "alternativas": {"A": "atribui uma característica ao substantivo \"matéria\".", "B": "liga duas orações estabelecendo uma relação de sentido entre elas — neste caso, de oposição/contraste (conjunção coordenativa adversativa).", "C": "substitui o sujeito da segunda oração, evitando repetição.", "D": "indica uma circunstância de tempo em que a ação ocorreu.", "E": "modifica o verbo \"estudei\", indicando intensidade."}, "correta": "B", "explicacao": "Conjunções ligam orações ou termos, estabelecendo uma relação de sentido entre eles. \"Mas\" é conjunção coordenativa adversativa, pois indica contraste/oposição entre \"estudei bastante\" e \"não tive tempo de revisar\"."}, {"tema": "Sintaxe / Identificação de sujeito composto", "enunciado": "\"Pedro e Ana organizaram a festa de aniversário juntos.\" Sobre o sujeito dessa oração, é correto afirmar que:", "alternativas": {"A": "trata-se de sujeito simples, pois há apenas um núcleo na frase.", "B": "trata-se de sujeito composto, pois há dois núcleos (\"Pedro\" e \"Ana\") exercendo a mesma função sintática, ligados pela conjunção \"e\".", "C": "trata-se de sujeito oculto, pois os nomes próprios não podem ser sujeitos explícitos.", "D": "trata-se de sujeito indeterminado, pois não se sabe exatamente quem organizou a festa.", "E": "trata-se de oração sem sujeito, pois o verbo \"organizar\" é impessoal."}, "correta": "B", "explicacao": "O sujeito composto tem dois ou mais núcleos exercendo a mesma função sintática de sujeito. \"Pedro\" e \"Ana\", ligados pela conjunção \"e\", formam o sujeito composto da oração."}, {"tema": "Variação linguística / Mudança linguística", "enunciado": "A expressão \"vossa mercê\", usada na língua portuguesa antiga como forma de tratamento respeitoso, deu origem, ao longo dos séculos, à forma \"você\", hoje usada de modo informal. Esse processo de transformação ao longo do tempo é estudado pela sociolinguística como variação", "alternativas": {"A": "diatópica, relacionada à distância geográfica entre os falantes que usam cada forma.", "B": "diastrática, relacionada exclusivamente à classe social que usa cada forma.", "C": "diacrônica, relacionada às mudanças que a língua sofre ao longo do tempo histórico.", "D": "diafásica, relacionada apenas ao grau de formalidade da situação comunicativa atual.", "E": "dialetal, relacionada a um dialeto regional específico do português."}, "correta": "C", "explicacao": "A transformação de \"vossa mercê\" em \"você\" ao longo de séculos é um exemplo clássico de variação diacrônica — mudança linguística que ocorre com a passagem do tempo histórico."}, {"tema": "Sintaxe / Objeto direto preposicionado", "enunciado": "\"O professor elogiou a todos os alunos pelo esforço na prova.\" Sobre o termo \"a todos os alunos\", é correto afirmar que:", "alternativas": {"A": "é objeto indireto, pois \"elogiar\" é verbo transitivo indireto que exige a preposição \"a\".", "B": "é objeto direto preposicionado: embora introduzido pela preposição \"a\", completa o sentido do verbo transitivo direto \"elogiar\" (elogiar alguém), sem mudar sua natureza de objeto direto.", "C": "é adjunto adverbial de modo, indicando como o elogio foi feito.", "D": "é sujeito da oração, pois pratica indiretamente a ação verbal.", "E": "é complemento nominal, pois completa o sentido de um substantivo abstrato."}, "correta": "B", "explicacao": "\"Elogiar\" é verbo transitivo direto (\"elogiar alguém\"), mas, por razões de clareza ou estilo, seu objeto direto pode vir precedido de preposição — fenômeno chamado de objeto direto preposicionado, comum quando o objeto é \"todos\", \"ambos\" ou pronomes."}];
+
+const STORAGE_KEY = 'recuperacao_port_101_progress_v1';
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { acertos: {}, erros: {}, feitas: {} };
+    return JSON.parse(raw);
+  } catch(e) {
+    return { acertos: {}, erros: {}, feitas: {} };
+  }
+}
+
+function saveProgress(p) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch(e) {}
+}
+
+let progress = loadProgress();
+
+let session = {
+  questions: [],
+  index: 0,
+  answers: [],
+  mode: 'todas'
+};
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function questionKey(q, idx) {
+  return q.tema + '::' + q.enunciado.slice(0, 30) + '::' + idx;
+}
+
+// stable id based on content
+function qid(q) {
+  let str = q.enunciado;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return 'q' + hash;
+}
+
+function updateHomeStats() {
+  const totalFeitas = Object.keys(progress.feitas).length;
+  const totalAcertos = Object.values(progress.acertos).reduce((a,b)=>a+b,0);
+  document.getElementById('stat-feitas').textContent = totalFeitas;
+  document.getElementById('stat-acertos').textContent = totalAcertos;
+  const errosIds = Object.keys(progress.erros).filter(id => progress.erros[id] > 0);
+  document.getElementById('erros-count').textContent = errosIds.length;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  updateHomeStats();
+  showScreen('screen-home');
+}
+
+function startQuiz(mode) {
+  let pool = QUESTOES.map(q => Object.assign({}, q, {_id: qid(q)}));
+
+  if (mode === 'rapido') {
+    pool = shuffle(pool).slice(0, 15);
+  } else if (mode === 'erros') {
+    const errosIds = Object.keys(progress.erros).filter(id => progress.erros[id] > 0);
+    pool = pool.filter(q => errosIds.includes(q._id));
+    if (pool.length === 0) {
+      alert('Você ainda não tem erros registrados. Faça o simulado completo primeiro!');
+      return;
+    }
+  }
+  // 'todas' uses full pool
+
+  pool = shuffle(pool);
+
+  session = {
+    questions: pool,
+    index: 0,
+    answers: [],
+    mode: mode
+  };
+
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function restartSame() {
+  startQuiz(session.mode);
+}
+
+function renderQuestion() {
+  const q = session.questions[session.index];
+  const total = session.questions.length;
+
+  document.getElementById('progress-bar').style.width = (session.index / total * 100) + '%';
+  document.getElementById('meta-counter').textContent = `Questão ${session.index + 1} de ${total}`;
+  document.getElementById('meta-tema').textContent = q.tema;
+  document.getElementById('qnum-label').textContent = `QUESTÃO ${session.index + 1}`;
+  document.getElementById('enunciado-text').textContent = q.enunciado;
+
+  const altList = document.getElementById('alt-list');
+  altList.innerHTML = '';
+
+  const letters = ['A','B','C','D','E'];
+  letters.forEach(letter => {
+    const div = document.createElement('div');
+    div.className = 'alt-option';
+    div.dataset.letter = letter;
+    div.innerHTML = `<div class="letter">${letter}</div><div>${q.alternativas[letter]}</div>`;
+    div.addEventListener('click', () => selectAnswer(letter));
+    altList.appendChild(div);
+  });
+
+  document.getElementById('explicacao-box').className = 'explicacao-box';
+  document.getElementById('next-btn').disabled = true;
+  document.getElementById('next-btn').textContent = 'Responda para continuar';
+}
+
+function selectAnswer(letter) {
+  const q = session.questions[session.index];
+  if (session.answers[session.index] !== undefined) return; // already answered
+
+  const isCorrect = letter === q.correta;
+  session.answers[session.index] = { letter, isCorrect };
+
+  // persist progress
+  const id = q._id;
+  progress.feitas[id] = true;
+  if (isCorrect) {
+    progress.acertos[id] = (progress.acertos[id] || 0) + 1;
+    progress.erros[id] = 0;
+  } else {
+    progress.erros[id] = (progress.erros[id] || 0) + 1;
+  }
+  saveProgress(progress);
+
+  // visual feedback
+  document.querySelectorAll('.alt-option').forEach(opt => {
+    opt.classList.add('disabled');
+    const l = opt.dataset.letter;
+    if (l === q.correta) {
+      opt.classList.add('correct');
+    } else if (l === letter && !isCorrect) {
+      opt.classList.add('incorrect');
+    } else {
+      opt.classList.add('muted');
+    }
+  });
+
+  const box = document.getElementById('explicacao-box');
+  box.className = 'explicacao-box show ' + (isCorrect ? 'right' : 'wrong');
+  document.getElementById('explicacao-head').textContent = isCorrect
+    ? '✓ Resposta correta!'
+    : `✗ Resposta incorreta — a correta é a ${q.correta}`;
+  document.getElementById('explicacao-text').textContent = q.explicacao;
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = false;
+  nextBtn.textContent = (session.index === session.questions.length - 1) ? 'Ver resultado' : 'Próxima questão →';
+}
+
+function nextQuestion() {
+  if (session.index < session.questions.length - 1) {
+    session.index++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  const total = session.questions.length;
+  const acertos = session.answers.filter(a => a && a.isCorrect).length;
+  const pct = Math.round((acertos / total) * 100);
+
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-frac').textContent = `${acertos}/${total}`;
+
+  let title, msg;
+  if (pct >= 80) {
+    title = 'Excelente!';
+    msg = 'Você domina muito bem esses conteúdos.';
+  } else if (pct >= 60) {
+    title = 'Bom resultado';
+    msg = 'Está no caminho certo — revise os temas que errou.';
+  } else if (pct >= 40) {
+    title = 'Continue estudando';
+    msg = 'Vale revisar a matéria com mais atenção antes da prova.';
+  } else {
+    title = 'Hora de revisar';
+    msg = 'Releia o material sobre estes temas e tente de novo.';
+  }
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-msg').textContent = msg;
+
+  // breakdown by tema
+  const temaStats = {};
+  session.questions.forEach((q, i) => {
+    const ans = session.answers[i];
+    if (!temaStats[q.tema]) temaStats[q.tema] = { total: 0, acertos: 0 };
+    temaStats[q.tema].total++;
+    if (ans && ans.isCorrect) temaStats[q.tema].acertos++;
+  });
+
+  const temaList = document.getElementById('tema-list');
+  temaList.innerHTML = '';
+  Object.keys(temaStats).sort().forEach(tema => {
+    const s = temaStats[tema];
+    const row = document.createElement('div');
+    row.className = 'tema-row';
+    const ratio = s.acertos / s.total;
+    row.innerHTML = `<div class="tema-name">${tema}</div><div class="tema-score ${ratio >= 0.6 ? 'good' : 'bad'}">${s.acertos}/${s.total}</div>`;
+    temaList.appendChild(row);
+  });
+
+  showScreen('screen-result');
+}
+
+function resetProgress() {
+  if (confirm('Isso vai apagar todo o seu histórico de acertos e erros salvos neste navegador. Continuar?')) {
+    progress = { acertos: {}, erros: {}, feitas: {} };
+    saveProgress(progress);
+    updateHomeStats();
+  }
+}
+
+updateHomeStats();
+</script>
+
+</body>
+</html>
